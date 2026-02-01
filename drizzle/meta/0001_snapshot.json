@@ -1,0 +1,208 @@
+{
+  "id": "69f7a59c-902a-4895-bddf-45303547ed1a",
+  "prevId": "eb8bc60c-ae11-4ebe-b30d-6e9c57a3f229",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.uloga_korisnika": {
+      "name": "uloga_korisnika",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "naziv": {
+          "name": "naziv",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "uloga_korisnika_naziv_unique": {
+          "name": "uloga_korisnika_naziv_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "naziv"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.korisnik": {
+      "name": "korisnik",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lozinka_hash": {
+          "name": "lozinka_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_naloga": {
+          "name": "status_naloga",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "uloga_id": {
+          "name": "uloga_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "korisnik_uloga_id_uloga_korisnika_id_fk": {
+          "name": "korisnik_uloga_id_uloga_korisnika_id_fk",
+          "tableFrom": "korisnik",
+          "tableTo": "uloga_korisnika",
+          "columnsFrom": [
+            "uloga_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "korisnik_email_unique": {
+          "name": "korisnik_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.zaposleni": {
+      "name": "zaposleni",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ime": {
+          "name": "ime",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prezime": {
+          "name": "prezime",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_rodjenja": {
+          "name": "datum_rodjenja",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pozicija": {
+          "name": "pozicija",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plata": {
+          "name": "plata",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_zaposlenja": {
+          "name": "datum_zaposlenja",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_zaposlenja": {
+          "name": "status_zaposlenja",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "korisnik_id": {
+          "name": "korisnik_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "zaposleni_korisnik_id_korisnik_id_fk": {
+          "name": "zaposleni_korisnik_id_korisnik_id_fk",
+          "tableFrom": "zaposleni",
+          "tableTo": "korisnik",
+          "columnsFrom": [
+            "korisnik_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "zaposleni_korisnik_id_unique": {
+          "name": "zaposleni_korisnik_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "korisnik_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
