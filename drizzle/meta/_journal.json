@@ -15,6 +15,13 @@
       "when": 1769952912434,
       "tag": "0001_true_marvel_zombies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769953262906,
+      "tag": "0002_absent_professor_monster",
+      "breakpoints": true
     }
   ]
 }
