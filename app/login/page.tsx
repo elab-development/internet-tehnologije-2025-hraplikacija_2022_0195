@@ -15,23 +15,26 @@ export default function LoginPage() {
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!loading && korisnik) {
-            router.replace("/dashboard");
-        }
-    }, [loading, korisnik, router]);
+    if (!loading && korisnik) {
+    const uloga = korisnik.ulogaId;
+    if (uloga === 1) router.push("/dashboard");
+    else if (uloga === 2) router.push("/hr");
+    else router.push("/dashboard");
+  }
+}, [loading, korisnik, router]);
+
 
     const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitting(true);
-        try {
-            await login(email.trim(), lozinka);
-            router.push("/dashboard");
-        } catch {
-            
-        } finally {
-            setSubmitting(false);
-        }
-    };
+  e.preventDefault();
+  setSubmitting(true);
+  try {
+    await login(email.trim(), lozinka);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
     
     if (loading) return null;

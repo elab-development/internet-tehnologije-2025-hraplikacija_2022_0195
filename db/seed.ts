@@ -39,6 +39,27 @@ async function main() {
     else{
         console.log(`Sistem admin vec postoji: ${adminEmail}`);
     }
+    const uloga_hr_admin_postoji = await db.select({id: ulogaKorisnika.id}).from(ulogaKorisnika).where(eq(ulogaKorisnika.naziv, "HR_ADMIN")).limit(1);
+    if (uloga_hr_admin_postoji.length === 0) throw new Error("HR_ADMIN uloga fali");
+
+    const hrAdminEmail = "hr@fon.test";
+    const hrAdminPassword = "hr";
+    const hrPassHash = await bcrypt.hash(hrAdminPassword, 12);
+
+    const postoji_hr_admin = await db.select({id: korisnik.id}).from(korisnik).where(eq(korisnik.email, hrAdminEmail)).limit(1);
+
+    if(postoji_hr_admin.length === 0){
+        await db.insert(korisnik).values({
+            email: hrAdminEmail,
+            lozinkaHash: hrPassHash,
+            statusNaloga: true,
+            ulogaId: uloga_hr_admin_postoji[0].id
+        });
+        console.log(`Ubacen hr admin: ${hrAdminEmail}`);
+    }
+    else{
+        console.log(`HR admin vec postoji: ${hrAdminEmail}`);
+    }
 }
 
 main().then(()=> process.exit(0)).catch((e) => {
