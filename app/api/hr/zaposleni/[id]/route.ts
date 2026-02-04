@@ -6,17 +6,19 @@ import { requireHrAdmin } from "@/lib/auth/requireHrAdmin";
 import { apiError } from "@/lib/api/apiError";
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireHrAdmin();
     const body = await req.json();
 
+    const { id } = await params;
+
     await db
       .update(zaposleni)
       .set(body)
-      .where(eq(zaposleni.id, Number(params.id)));
+      .where(eq(zaposleni.id, Number(id)));
 
     return NextResponse.json({ ok: true });
   } catch (e) {
