@@ -37,7 +37,44 @@ export default function ModalUser({
   const [pozicija, setPozicija] = useState("");
   const [plata, setPlata] = useState("");
   const [datumZaposlenja, setDatumZaposlenja] = useState("");
+  // Validacija
+  const validate = () => {
+    if (!email.includes("@")) {
+      alert("Email nije validan");
+      return false;
+    }
 
+    if (!lozinka || lozinka.length < 6) {
+      alert("Lozinka mora imati najmanje 6 karaktera");
+      return false;
+    }
+
+    if (!ime || !prezime) {
+      alert("Ime i prezime su obavezni");
+      return false;
+    }
+
+    if (!datumRodjenja) {
+      alert("Datum rođenja je obavezan");
+      return false;
+    }
+
+    const birthYear = new Date(datumRodjenja).getFullYear();
+    const employmentYear = new Date(datumZaposlenja).getFullYear();
+    const currentYear = new Date().getFullYear();
+
+    if (currentYear - birthYear > 100) {
+      alert("Osoba ne može biti starija od 100 godina");
+      return false;
+    }
+
+    if (employmentYear < birthYear) {
+      alert("Datum zaposlenja ne može biti pre datuma rođenja");
+      return false;
+    }
+
+    return true;
+  };
   // Reset forme kad se modal zatvori
   useEffect(() => {
     if (!isOpen) {
@@ -53,6 +90,7 @@ export default function ModalUser({
   }, [isOpen]);
 
   const handleSave = () => {
+    if (!validate()) return;
     onSave({
       email,
       lozinka,

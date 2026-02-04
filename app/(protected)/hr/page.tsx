@@ -20,7 +20,6 @@ type Zaposleni = {
 export default function HrPage() {
   const [zaposleni, setZaposleni] = useState<Zaposleni[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [showModal, setShowModal] = useState(false);
 
   async function loadZaposleni() {
@@ -75,13 +74,15 @@ export default function HrPage() {
                 <td className="px-4 py-3">{e.ime}</td>
                 <td className="px-4 py-3">{e.prezime}</td>
                 <td className="px-4 py-3">{e.pozicija}</td>
-                <td className="px-4 py-3">{e.plata}</td>
+                <td className="px-4 py-3">{Number(e.plata).toFixed(2)} €</td>
                 <td className="px-4 py-3">
-                  {e.korisnik.statusNaloga ? (
-                    <span className="text-green-400 font-semibold">Aktivan</span>
-                  ) : (
-                    <span className="text-red-400 font-semibold">Neaktivan</span>
-                  )}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                    }`}
+                  >
+                    {e.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
+                  </span>
                 </td>
               </tr>
             ))}
