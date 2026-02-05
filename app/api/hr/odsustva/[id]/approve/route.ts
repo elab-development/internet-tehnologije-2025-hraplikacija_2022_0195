@@ -17,7 +17,7 @@ export async function PATCH(
     await db
       .update(zahtevZaOdsustvo)
       .set({
-        statusId: 2, // ODOBREN
+        statusId: 2, 
         datumAzuriranja: new Date(),
       })
       .where(eq(zahtevZaOdsustvo.id, Number(id)));

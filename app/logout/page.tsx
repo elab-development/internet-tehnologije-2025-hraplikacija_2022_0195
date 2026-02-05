@@ -11,9 +11,11 @@ export default function LogoutPage() {
   useEffect(() => {
     (async () => {
       await logout();
+      // Add a small delay to ensure cookie is cleared on the server
+      await new Promise(resolve => setTimeout(resolve, 100));
       router.replace("/login");
     })();
   }, [logout, router]);
 
-  return <div>Odjavljujem se...</div>;
+  return <div className="min-h-screen flex items-center justify-center">Odjavljujem se...</div>;
 }

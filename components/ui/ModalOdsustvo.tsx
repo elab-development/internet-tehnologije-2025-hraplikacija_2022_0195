@@ -131,6 +131,7 @@ export default function ModalOdsustvo({
             </table>
           </div>
         </div>
+        
       </div>
     </div>
   );

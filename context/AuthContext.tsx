@@ -66,8 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-    } finally {
       setKorisnik(null);
+    } catch (e) {
+      setKorisnik(null);
+      throw e;
     }
   };
 
