@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import ModalUser, { UserEmployeeData } from "@/components/ui/ModalUser";
+import ModalOdsustvo, { ZahtevOdsustvo } from "@/components/ui/ModalOdsustvo";
 
-type Zaposleni = {
+type Employee = {
   id: number;
   ime: string;
   prezime: string;
@@ -21,38 +22,82 @@ type Zaposleni = {
 };
 
 export default function HrPage() {
-  const [zaposleni, setZaposleni] = useState<Zaposleni[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editEmployee, setEditEmployee] = useState<Zaposleni | null>(null);
+  const [showModalUser, setShowModalUser] = useState(false);
+  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
+  const [showModalOdsustvo, setShowModalOdsustvo] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [podneti, setPodneti] = useState<ZahtevOdsustvo[]>([]);
+  const [zavrseni, setZavrseni] = useState<ZahtevOdsustvo[]>([]);
 
-  async function loadZaposleni() {
+  async function loadEmployees() {
     setLoading(true);
     const res = await fetch("/api/hr/zaposleni", { cache: "no-store" });
-    if (res.ok) setZaposleni(await res.json());
+    if (res.ok) setEmployees(await res.json());
     setLoading(false);
   }
 
   useEffect(() => {
-    loadZaposleni();
+    loadEmployees();
   }, []);
 
   const openAddModal = () => {
     setEditEmployee(null);
-    setShowModal(true);
+    setShowModalUser(true);
   };
 
-  const openEditModal = (employee: Zaposleni) => {
+  const openEditModal = (employee: Employee) => {
     setEditEmployee(employee);
-    setShowModal(true);
+    setShowModalUser(true);
   };
 
-  const formatDateForInput = (date: string | undefined) => {
+  const openOdsustvoModal = async (employee: Employee) => {
+    setSelectedEmployee(employee);
+    console.log("openOdsustvoModal: employee.id=", employee?.id);
+    try {
+      const url = `/api/hr/odsustva/${employee.id}`;
+      console.log("Fetching odsustva URL:", url);
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) {
+        console.error("Failed to load odsustva", res.status, await res.text());
+        setPodneti([]);
+        setZavrseni([]);
+        setShowModalOdsustvo(true);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("odsustva response", data);
+
+      // Handle possible response shapes from backend:
+      // 1) { podneti: [...], zavrseni: [...] }
+      // 2) flat array of requests: [...]
+      if (Array.isArray(data)) {
+        setPodneti(data.filter((z: ZahtevOdsustvo) => z.statusId === 1));
+        setZavrseni(data.filter((z: ZahtevOdsustvo) => z.statusId !== 1));
+      } else if (data && (data.podneti || data.zavrseni)) {
+        setPodneti(data.podneti ?? []);
+        setZavrseni(data.zavrseni ?? []);
+      } else {
+        setPodneti([]);
+        setZavrseni([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setPodneti([]);
+      setZavrseni([]);
+    } finally {
+      setShowModalOdsustvo(true);
+    }
+  };
+
+  const formatDateForInput = (date?: string) => {
     if (!date) return "";
     const d = new Date(date);
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${d.getFullYear()}-${month}-${day}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
   };
 
   const saveEmployee = async (data: UserEmployeeData) => {
@@ -66,11 +111,9 @@ export default function HrPage() {
         pozicija: data.pozicija,
         plata: data.plata,
       };
-
       const filteredPayload = Object.fromEntries(
         Object.entries(payload).filter(([_, v]) => v !== undefined)
       );
-
       await fetch(`/api/hr/zaposleni/${editEmployee.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -83,10 +126,19 @@ export default function HrPage() {
         body: JSON.stringify(data),
       });
     }
-
-    setShowModal(false);
+    setShowModalUser(false);
     setEditEmployee(null);
-    loadZaposleni();
+    loadEmployees();
+  };
+
+  const handleApprove = async (id: number) => {
+    await fetch(`/api/hr/odsustva/${id}/approve`, { method: "PATCH" });
+    if (selectedEmployee) openOdsustvoModal(selectedEmployee);
+  };
+
+  const handleDeny = async (id: number) => {
+    await fetch(`/api/hr/odsustva/${id}/deny`, { method: "PATCH" });
+    if (selectedEmployee) openOdsustvoModal(selectedEmployee);
   };
 
   if (loading) return <p className="text-center mt-10 text-gray-400">Učitavanje...</p>;
@@ -95,9 +147,15 @@ export default function HrPage() {
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6 text-center text-white">Zaposleni</h1>
 
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 gap-4">
         <Button onClick={openAddModal} className="w-48">
           Dodaj zaposlenog
+        </Button>
+        <Button
+          onClick={() => (window.location.href = "/logout")}
+          className="px-3 py-1 text-sm"
+        >
+          Logout
         </Button>
       </div>
 
@@ -115,31 +173,33 @@ export default function HrPage() {
             </tr>
           </thead>
           <tbody className="bg-zinc-900 divide-y divide-zinc-700">
-            {zaposleni.map((e) => (
-              <tr key={e.id} className="hover:bg-zinc-800 transition">
-                <td className="px-4 py-3">{e.id}</td>
-                <td className="px-4 py-3">{e.ime}</td>
-                <td className="px-4 py-3">{e.prezime}</td>
-                <td className="px-4 py-3">{e.pozicija}</td>
-                <td className="px-4 py-3">{Number(e.plata).toFixed(2)} €</td>
+            {employees.map((employee) => (
+              <tr key={employee.id} className="hover:bg-zinc-800 transition">
+                <td className="px-4 py-3">{employee.id}</td>
+                <td className="px-4 py-3">{employee.ime}</td>
+                <td className="px-4 py-3">{employee.prezime}</td>
+                <td className="px-4 py-3">{employee.pozicija}</td>
+                <td className="px-4 py-3">{Number(employee.plata).toFixed(2)} €</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                      }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      employee.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                    }`}
                   >
-                    {e.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
+                    {employee.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
                   </span>
                 </td>
                 <td className="px-4 py-3 flex gap-2">
-                  <Button onClick={() => openEditModal(e)}>Azuriraj</Button>
+                  <Button onClick={() => openEditModal(employee)}>Azuriraj</Button>
                   <Button
                     onClick={async () => {
-                      await fetch(`/api/hr/zaposleni/${e.id}/toggle`, { method: "PATCH" });
-                      loadZaposleni();
+                      await fetch(`/api/hr/zaposleni/${employee.id}/toggle`, { method: "PATCH" });
+                      loadEmployees();
                     }}
                   >
-                    {e.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
+                    {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
                   </Button>
+                  <Button onClick={() => openOdsustvoModal(employee)}>Odsustva</Button>
                 </td>
               </tr>
             ))}
@@ -148,34 +208,43 @@ export default function HrPage() {
       </div>
 
       <ModalUser
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={showModalUser}
+        onClose={() => setShowModalUser(false)}
         onSave={saveEmployee}
         initialData={
           editEmployee
             ? {
-              email: editEmployee.korisnik.email,
-              ime: editEmployee.ime,
-              prezime: editEmployee.prezime,
-              datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
-              pozicija: editEmployee.pozicija,
-              plata: editEmployee.plata.toString(),
-              datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
-              ulogaId: 3,
-            }
+                email: editEmployee.korisnik.email,
+                ime: editEmployee.ime,
+                prezime: editEmployee.prezime,
+                datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+                pozicija: editEmployee.pozicija,
+                plata: editEmployee.plata.toString(),
+                datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+                ulogaId: 3,
+              }
             : undefined
         }
         isEdit={!!editEmployee}
       />
 
-      <div className="flex justify-center mt-4">
-        <Button
-          onClick={() => (window.location.href = "/logout")}
-          className="px-3 py-1 text-sm"
-        >
-          Logout
-        </Button>
-      </div>
+      {selectedEmployee && (
+        <ModalOdsustvo
+          isOpen={showModalOdsustvo}
+          onClose={() => setShowModalOdsustvo(false)}
+          employee={{
+            id: selectedEmployee.id,
+            ime: selectedEmployee.ime,
+            prezime: selectedEmployee.prezime,
+            email: selectedEmployee.korisnik.email,
+            pozicija: selectedEmployee.pozicija,
+          }}
+          podneti={podneti}
+          zavrseni={zavrseni}
+          onApprove={handleApprove}
+          onDeny={handleDeny}
+        />
+      )}
     </div>
   );
 }

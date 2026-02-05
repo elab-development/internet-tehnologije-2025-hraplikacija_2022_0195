@@ -9,13 +9,13 @@ export type ZahtevOdsustvo = {
   razlog: string;
   datumKreiranja: string;
   datumAzuriranja?: string;
-  statusId: number; // 1 = podnet, 2 = odbijen, 3 = odobren
+  statusId: number;
 };
 
 export type ModalOdsustvoProps = {
   isOpen: boolean;
   onClose: () => void;
-  zaposleni: {
+  employee: {
     id: number;
     ime: string;
     prezime: string;
@@ -31,7 +31,7 @@ export type ModalOdsustvoProps = {
 export default function ModalOdsustvo({
   isOpen,
   onClose,
-  zaposleni,
+  employee,
   podneti,
   zavrseni,
   onApprove,
@@ -51,17 +51,12 @@ export default function ModalOdsustvo({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-zinc-900 rounded-2xl max-w-5xl w-full p-6 overflow-y-auto max-h-[90vh] relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-white text-lg font-bold"
-        >
-          &times;
-        </button>
+        <button onClick={onClose} className="absolute top-4 right-4 text-white text-lg font-bold">&times;</button>
 
         <div className="mb-6 text-white">
-          <h2 className="text-xl font-bold mb-1">{zaposleni.ime} {zaposleni.prezime}</h2>
-          <p className="text-sm">Email: {zaposleni.email}</p>
-          <p className="text-sm">Pozicija: {zaposleni.pozicija}</p>
+          <h2 className="text-xl font-bold mb-1">{employee.ime} {employee.prezime}</h2>
+          <p className="text-sm">Email: {employee.email}</p>
+          <p className="text-sm">Pozicija: {employee.pozicija}</p>
         </div>
 
         <div className="mb-6">
