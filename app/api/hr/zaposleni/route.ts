@@ -17,6 +17,8 @@ export async function GET() {
         prezime: zaposleni.prezime,
         pozicija: zaposleni.pozicija,
         plata: zaposleni.plata,
+        datumRodjenja: zaposleni.datumRodjenja,
+        datumZaposlenja: zaposleni.datumZaposlenja,
         korisnik: {
           id: korisnik.id,
           email: korisnik.email,

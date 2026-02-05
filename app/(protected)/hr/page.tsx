@@ -10,6 +10,8 @@ type Zaposleni = {
   prezime: string;
   pozicija: string;
   plata: number;
+  datumRodjenja: string;
+  datumZaposlenja: string;
   korisnik: {
     id: number;
     email: string;
@@ -21,6 +23,7 @@ export default function HrPage() {
   const [zaposleni, setZaposleni] = useState<Zaposleni[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editEmployee, setEditEmployee] = useState<Zaposleni | null>(null);
 
   async function loadZaposleni() {
     setLoading(true);
@@ -33,13 +36,44 @@ export default function HrPage() {
     loadZaposleni();
   }, []);
 
+  const openAddModal = () => {
+    setEditEmployee(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (employee: Zaposleni) => {
+    setEditEmployee(employee);
+    setShowModal(true);
+  };
+  // Funkcija za formatiranje datuma za input polja
+  const formatDateForInput = (date: string | undefined) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+  };
+
   const saveEmployee = async (data: UserEmployeeData) => {
-    await fetch("/api/hr/zaposleni", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    console.log("editEmployee:", editEmployee);  // ceo objekat zaposlenog
+    console.log("editEmployee.id:", editEmployee?.id);  // konkretan ID
+    console.log("Payload:", data);  // ceo payload koji šalješ
+
+    if (editEmployee) {
+      await fetch(`/api/hr/zaposleni/${editEmployee.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } else {
+      await fetch("/api/hr/zaposleni", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    }
     setShowModal(false);
+    setEditEmployee(null);
     loadZaposleni();
   };
 
@@ -50,7 +84,7 @@ export default function HrPage() {
       <h1 className="text-2xl font-bold mb-6 text-center text-white">Zaposleni</h1>
 
       <div className="flex justify-center mb-6">
-        <Button onClick={() => setShowModal(true)} className="w-48">
+        <Button onClick={openAddModal} className="w-48">
           Dodaj zaposlenog
         </Button>
       </div>
@@ -65,6 +99,7 @@ export default function HrPage() {
               <th className="px-4 py-3">Pozicija</th>
               <th className="px-4 py-3">Plata</th>
               <th className="px-4 py-3">Status naloga</th>
+              <th className="px-4 py-3">Akcije</th>
             </tr>
           </thead>
           <tbody className="bg-zinc-900 divide-y divide-zinc-700">
@@ -77,12 +112,15 @@ export default function HrPage() {
                 <td className="px-4 py-3">{Number(e.plata).toFixed(2)} €</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                      }`}
                   >
                     {e.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
                   </span>
+                </td>
+                <td className="px-4 py-3 flex gap-2">
+                  <Button onClick={() => openEditModal(e)}>Azuriraj</Button>
+                  {/* Drugo dugme ostaje za kasnije */}
                 </td>
               </tr>
             ))}
@@ -90,7 +128,22 @@ export default function HrPage() {
         </table>
       </div>
 
-      <ModalUser isOpen={showModal} onClose={() => setShowModal(false)} onSave={saveEmployee} />
+      <ModalUser
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={saveEmployee}
+        initialData={editEmployee ? {
+          email: editEmployee.korisnik.email,
+          ime: editEmployee.ime,
+          prezime: editEmployee.prezime,
+          datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+          pozicija: editEmployee.pozicija,
+          plata: editEmployee.plata.toString(),
+          datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+          ulogaId: 3,
+        } : undefined}
+        isEdit={!!editEmployee}
+      />
     </div>
   );
 }

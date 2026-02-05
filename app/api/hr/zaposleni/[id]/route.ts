@@ -1,27 +1,39 @@
+// app/api/hr/zaposleni/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { zaposleni } from "@/db/schema/zaposleni";
+import { zaposleni } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
-import { requireHrAdmin } from "@/lib/auth/requireHrAdmin";
-import { apiError } from "@/lib/api/apiError";
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+type ZaposleniUpdateData = {
+  ime?: string;
+  prezime?: string;
+  pozicija?: string;
+  plata?: string;             // numeric se mora slati kao string
+  datumRodjenja?: string;     // "YYYY-MM-DD"
+  datumZaposlenja?: string;  // "YYYY-MM-DD"
+};
+
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  console.log("Params received:", params);
   try {
-    await requireHrAdmin();
-    const body = await req.json();
+      // šta Next.js stvarno dobija
+    const id = Number(params.id);
+    console.log("Parsed ID:", id);
+    if (!id) return NextResponse.json({ error: "Nevalidan ID" }, { status: 400 });
 
-    const { id } = await params;
+    const body: ZaposleniUpdateData = await req.json();
+    console.log("Body received:", body);
 
-    await db
-      .update(zaposleni)
-      .set(body)
-      .where(eq(zaposleni.id, Number(id)));
+    const updateData: ZaposleniUpdateData = {
+      ...body,
+      plata: body.plata !== undefined ? body.plata.toString() : undefined,
+    };
 
-    return NextResponse.json({ ok: true });
-  } catch (e) {
-    return apiError(e);
+    await db.update(zaposleni).set(updateData).where(eq(zaposleni.id, id));
+
+    return NextResponse.json({ message: "Uspešno ažurirano" });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Greška pri ažuriranju" }, { status: 500 });
   }
 }
