@@ -19,6 +19,7 @@ export default function LoginPage() {
     const uloga = korisnik.ulogaId;
     if (uloga === 1) router.replace("/dashboard");
     else if (uloga === 2) router.replace("/hr");
+    else if (uloga === 3) router.replace("/zaposleni");
     else router.replace("/dashboard");
   }
 }, [loading, korisnik, router]);

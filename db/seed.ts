@@ -4,6 +4,7 @@ import { db } from "./index";
 import { korisnik, ulogaKorisnika } from "./schema";
 import { error } from "console";
 import bcrypt from "bcryptjs";
+import { statusZahteva } from "./schema/status_zahteva";
 
 
 async function main() {
@@ -59,6 +60,23 @@ async function main() {
     }
     else{
         console.log(`HR admin vec postoji: ${hrAdminEmail}`);
+    }
+
+     const statusiZahteva = ["Podnet", "Odobren", "Odbijen"];
+
+    for (const naziv of statusiZahteva) {
+        const postoji = await db
+            .select({ id: statusZahteva.id })
+            .from(statusZahteva)
+            .where(eq(statusZahteva.naziv, naziv))
+            .limit(1);
+
+        if (postoji.length === 0) {
+            await db.insert(statusZahteva).values({ naziv });
+            console.log(`Dodat status zahteva: ${naziv}`);
+        } else {
+            console.log(`Status zahteva već postoji: ${naziv}`);
+        }
     }
 }
 
