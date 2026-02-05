@@ -168,10 +168,10 @@ export default function HrPage() {
         isEdit={!!editEmployee}
       />
 
-      <div className="mt-6 flex justify-center">
+      <div className="flex justify-center mt-4">
         <Button
           onClick={() => (window.location.href = "/logout")}
-          className="text-sm px-3 py-1"
+          className="px-3 py-1 text-sm"
         >
           Logout
         </Button>
