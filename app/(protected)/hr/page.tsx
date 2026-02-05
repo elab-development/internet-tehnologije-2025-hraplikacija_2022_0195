@@ -60,18 +60,38 @@ export default function HrPage() {
     console.log("Payload:", data);  // ceo payload koji šalješ
 
     if (editEmployee) {
+      // pravimo payload sa samo potrebnim poljima
+      const payload = {
+        ime: data.ime,
+        prezime: data.prezime,
+        email: data.email,
+        datumRodjenja: data.datumRodjenja,
+        datumZaposlenja: data.datumZaposlenja,
+        pozicija: data.pozicija,
+        plata: data.plata,
+      };
+
+      // filtriramo undefined vrednosti da ne šaljemo prazna polja
+      const filteredPayload = Object.fromEntries(
+        Object.entries(payload).filter(([_, v]) => v !== undefined)
+      );
+
+      console.log("💡 PATCH payload koji se šalje:", filteredPayload);
+
       await fetch(`/api/hr/zaposleni/${editEmployee.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(filteredPayload),
       });
     } else {
+      // POST za dodavanje novog zaposlenog ostaje isti
       await fetch("/api/hr/zaposleni", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
     }
+
     setShowModal(false);
     setEditEmployee(null);
     loadZaposleni();
