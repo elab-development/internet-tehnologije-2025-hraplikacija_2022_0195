@@ -124,9 +124,8 @@ export default function HrPage() {
                 <td className="px-4 py-3">{Number(e.plata).toFixed(2)} €</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                      }`}
                   >
                     {e.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
                   </span>
@@ -135,9 +134,7 @@ export default function HrPage() {
                   <Button onClick={() => openEditModal(e)}>Azuriraj</Button>
                   <Button
                     onClick={async () => {
-                      await fetch(`/api/hr/zaposleni/${e.id}/toggle`, {
-                        method: "PATCH",
-                      });
+                      await fetch(`/api/hr/zaposleni/${e.id}/toggle`, { method: "PATCH" });
                       loadZaposleni();
                     }}
                   >
@@ -157,19 +154,28 @@ export default function HrPage() {
         initialData={
           editEmployee
             ? {
-                email: editEmployee.korisnik.email,
-                ime: editEmployee.ime,
-                prezime: editEmployee.prezime,
-                datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
-                pozicija: editEmployee.pozicija,
-                plata: editEmployee.plata.toString(),
-                datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
-                ulogaId: 3,
-              }
+              email: editEmployee.korisnik.email,
+              ime: editEmployee.ime,
+              prezime: editEmployee.prezime,
+              datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+              pozicija: editEmployee.pozicija,
+              plata: editEmployee.plata.toString(),
+              datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+              ulogaId: 3,
+            }
             : undefined
         }
         isEdit={!!editEmployee}
       />
+
+      <div className="mt-6 flex justify-center">
+        <Button
+          onClick={() => (window.location.href = "/logout")}
+          className="text-sm px-3 py-1"
+        >
+          Logout
+        </Button>
+      </div>
     </div>
   );
 }
