@@ -15,13 +15,11 @@ export default function LoginPage() {
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-  if (!loading) { 
-    if (korisnik) {
-      const uloga = korisnik.ulogaId;
-      if (uloga === 1) router.replace("/dashboard");
-      else if (uloga === 2) router.replace("/hr");
-      else router.replace("/dashboard");
-    }
+  if (!loading && korisnik) {
+    const uloga = korisnik.ulogaId;
+    if (uloga === 1) router.replace("/dashboard");
+    else if (uloga === 2) router.replace("/hr");
+    else router.replace("/dashboard");
   }
 }, [loading, korisnik, router]);
 

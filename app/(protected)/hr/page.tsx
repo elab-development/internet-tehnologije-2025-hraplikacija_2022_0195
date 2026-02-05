@@ -12,6 +12,7 @@ type Zaposleni = {
   plata: number;
   datumRodjenja: string;
   datumZaposlenja: string;
+  statusZaposlenja: boolean;
   korisnik: {
     id: number;
     email: string;
@@ -45,7 +46,7 @@ export default function HrPage() {
     setEditEmployee(employee);
     setShowModal(true);
   };
-  // Funkcija za formatiranje datuma za input polja
+
   const formatDateForInput = (date: string | undefined) => {
     if (!date) return "";
     const d = new Date(date);
@@ -55,12 +56,7 @@ export default function HrPage() {
   };
 
   const saveEmployee = async (data: UserEmployeeData) => {
-    console.log("editEmployee:", editEmployee);  // ceo objekat zaposlenog
-    console.log("editEmployee.id:", editEmployee?.id);  // konkretan ID
-    console.log("Payload:", data);  // ceo payload koji šalješ
-
     if (editEmployee) {
-      // pravimo payload sa samo potrebnim poljima
       const payload = {
         ime: data.ime,
         prezime: data.prezime,
@@ -71,12 +67,9 @@ export default function HrPage() {
         plata: data.plata,
       };
 
-      // filtriramo undefined vrednosti da ne šaljemo prazna polja
       const filteredPayload = Object.fromEntries(
         Object.entries(payload).filter(([_, v]) => v !== undefined)
       );
-
-      console.log("💡 PATCH payload koji se šalje:", filteredPayload);
 
       await fetch(`/api/hr/zaposleni/${editEmployee.id}`, {
         method: "PATCH",
@@ -84,7 +77,6 @@ export default function HrPage() {
         body: JSON.stringify(filteredPayload),
       });
     } else {
-      // POST za dodavanje novog zaposlenog ostaje isti
       await fetch("/api/hr/zaposleni", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -132,15 +124,25 @@ export default function HrPage() {
                 <td className="px-4 py-3">{Number(e.plata).toFixed(2)} €</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                      }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      e.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                    }`}
                   >
                     {e.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
                   </span>
                 </td>
                 <td className="px-4 py-3 flex gap-2">
                   <Button onClick={() => openEditModal(e)}>Azuriraj</Button>
-                  {/* Drugo dugme ostaje za kasnije */}
+                  <Button
+                    onClick={async () => {
+                      await fetch(`/api/hr/zaposleni/${e.id}/toggle`, {
+                        method: "PATCH",
+                      });
+                      loadZaposleni();
+                    }}
+                  >
+                    {e.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -152,16 +154,20 @@ export default function HrPage() {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSave={saveEmployee}
-        initialData={editEmployee ? {
-          email: editEmployee.korisnik.email,
-          ime: editEmployee.ime,
-          prezime: editEmployee.prezime,
-          datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
-          pozicija: editEmployee.pozicija,
-          plata: editEmployee.plata.toString(),
-          datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
-          ulogaId: 3,
-        } : undefined}
+        initialData={
+          editEmployee
+            ? {
+                email: editEmployee.korisnik.email,
+                ime: editEmployee.ime,
+                prezime: editEmployee.prezime,
+                datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+                pozicija: editEmployee.pozicija,
+                plata: editEmployee.plata.toString(),
+                datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+                ulogaId: 3,
+              }
+            : undefined
+        }
         isEdit={!!editEmployee}
       />
     </div>
