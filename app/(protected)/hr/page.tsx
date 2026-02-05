@@ -30,6 +30,7 @@ export default function HrPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [podneti, setPodneti] = useState<ZahtevOdsustvo[]>([]);
   const [zavrseni, setZavrseni] = useState<ZahtevOdsustvo[]>([]);
+  const [myUserId, setMyUserId] = useState<number | null>(null);
 
   async function loadEmployees() {
     setLoading(true);
@@ -39,7 +40,17 @@ export default function HrPage() {
   }
 
   useEffect(() => {
-    loadEmployees();
+    (async () => {
+      // ko sam ja
+      const meRes = await fetch("/api/me", { cache: "no-store" });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        setMyUserId(meData.korisnik?.id ?? null);
+      }
+
+      // lista zaposlenih
+      loadEmployees();
+    })();
   }, []);
 
   const openAddModal = () => {
@@ -173,36 +184,37 @@ export default function HrPage() {
             </tr>
           </thead>
           <tbody className="bg-zinc-900 divide-y divide-zinc-700">
-            {employees.map((employee) => (
-              <tr key={employee.id} className="hover:bg-zinc-800 transition">
-                <td className="px-4 py-3">{employee.id}</td>
-                <td className="px-4 py-3">{employee.ime}</td>
-                <td className="px-4 py-3">{employee.prezime}</td>
-                <td className="px-4 py-3">{employee.pozicija}</td>
-                <td className="px-4 py-3">{Number(employee.plata).toFixed(2)} €</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      employee.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                    }`}
-                  >
-                    {employee.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 flex gap-2">
-                  <Button onClick={() => openEditModal(employee)}>Azuriraj</Button>
-                  <Button
-                    onClick={async () => {
-                      await fetch(`/api/hr/zaposleni/${employee.id}/toggle`, { method: "PATCH" });
-                      loadEmployees();
-                    }}
-                  >
-                    {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
-                  </Button>
-                  <Button onClick={() => openOdsustvoModal(employee)}>Odsustva</Button>
-                </td>
-              </tr>
-            ))}
+            {employees
+              .filter((e) => myUserId == null || e.korisnik.id !== myUserId)
+              .map((employee) => (
+                <tr key={employee.id} className="hover:bg-zinc-800 transition">
+                  <td className="px-4 py-3">{employee.id}</td>
+                  <td className="px-4 py-3">{employee.ime}</td>
+                  <td className="px-4 py-3">{employee.prezime}</td>
+                  <td className="px-4 py-3">{employee.pozicija}</td>
+                  <td className="px-4 py-3">{Number(employee.plata).toFixed(2)} €</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${employee.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                        }`}
+                    >
+                      {employee.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <Button onClick={() => openEditModal(employee)}>Azuriraj</Button>
+                    <Button
+                      onClick={async () => {
+                        await fetch(`/api/hr/zaposleni/${employee.id}/toggle`, { method: "PATCH" });
+                        loadEmployees();
+                      }}
+                    >
+                      {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
+                    </Button>
+                    <Button onClick={() => openOdsustvoModal(employee)}>Odsustva</Button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
@@ -214,15 +226,15 @@ export default function HrPage() {
         initialData={
           editEmployee
             ? {
-                email: editEmployee.korisnik.email,
-                ime: editEmployee.ime,
-                prezime: editEmployee.prezime,
-                datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
-                pozicija: editEmployee.pozicija,
-                plata: editEmployee.plata.toString(),
-                datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
-                ulogaId: 3,
-              }
+              email: editEmployee.korisnik.email,
+              ime: editEmployee.ime,
+              prezime: editEmployee.prezime,
+              datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+              pozicija: editEmployee.pozicija,
+              plata: editEmployee.plata.toString(),
+              datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+              ulogaId: 3,
+            }
             : undefined
         }
         isEdit={!!editEmployee}

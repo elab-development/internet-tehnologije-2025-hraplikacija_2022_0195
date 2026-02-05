@@ -5,6 +5,7 @@ import { korisnik, ulogaKorisnika } from "./schema";
 import { error } from "console";
 import bcrypt from "bcryptjs";
 import { statusZahteva } from "./schema/status_zahteva";
+import { zaposleni } from "./schema/zaposleni";
 
 
 async function main() {
@@ -60,6 +61,40 @@ async function main() {
     }
     else{
         console.log(`HR admin vec postoji: ${hrAdminEmail}`);
+    }
+        const hrUser = await db
+        .select({ id: korisnik.id })
+        .from(korisnik)
+        .where(eq(korisnik.email, hrAdminEmail))
+        .limit(1);
+
+    if (hrUser.length === 0) {
+        throw new Error("HR admin korisnik ne postoji – seed je u nekonzistentnom stanju");
+    }
+
+    const hrUserId = hrUser[0].id;
+
+    const postojiHrZaposleni = await db
+        .select({ id: zaposleni.id })
+        .from(zaposleni)
+        .where(eq(zaposleni.korisnikId, hrUserId))
+        .limit(1);
+
+    if (postojiHrZaposleni.length === 0) {
+        await db.insert(zaposleni).values({
+            ime: "HR",
+            prezime: "Admin",
+            datumRodjenja: "1990-01-01",      // dummy datum, slobodno promeni
+            pozicija: "HR Administrator",
+            plata: "0.00",                   // ili neka realna vrednost
+            datumZaposlenja: "2024-01-01",    // ili new Date()
+            statusZaposlenja: true,
+            korisnikId: hrUserId,
+        });
+
+        console.log("Kreiran zaposleni profil za HR admina");
+    } else {
+        console.log("Zaposleni profil za HR admina već postoji");
     }
 
      const statusiZahteva = ["Podnet", "Odobren", "Odbijen"];
