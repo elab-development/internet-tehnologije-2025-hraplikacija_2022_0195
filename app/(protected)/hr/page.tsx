@@ -162,12 +162,7 @@ export default function HrPage() {
         <Button onClick={openAddModal} className="w-48">
           Dodaj zaposlenog
         </Button>
-        <Button
-          onClick={() => (window.location.href = "/logout")}
-          className="px-3 py-1 text-sm"
-        >
-          Logout
-        </Button>
+        
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-700">

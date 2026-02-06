@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
 import { getAuthCookie, verifyAuthToken } from "@/lib/auth/jwt";
+import Navbar from "@/components/layout/Navbar";
 
-export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const token = await getAuthCookie();
   if (!token) redirect("/login");
 
@@ -11,5 +16,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     redirect("/login");
   }
 
-  return <div>{children}</div>;
+  return (
+    <>
+      <Navbar />
+      <div>{children}</div>
+    </>
+  );
 }

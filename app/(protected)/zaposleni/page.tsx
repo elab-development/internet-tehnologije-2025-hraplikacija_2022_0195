@@ -122,7 +122,6 @@ export default function ZaposleniPage() {
 
         <div className="mt-4 flex gap-3">
           <Button onClick={openModal}>Napravi zahtev za odsustvo</Button>
-          <Button onClick={() => (window.location.href = "/logout")} className="bg-gray-600">Logout</Button>
         </div>
       </div>
 
