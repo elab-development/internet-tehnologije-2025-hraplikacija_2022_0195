@@ -4,11 +4,11 @@ import { zaposleni } from "@/db/schema/zaposleni";
 import { korisnik } from "@/db/schema/korisnik";
 import { eq } from "drizzle-orm";
 
-// Initialize SMTP transporter
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+  secure: process.env.SMTP_SECURE === "true",
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
@@ -25,9 +25,7 @@ interface EmployeeWithEmail {
   };
 }
 
-/**
- * Check if today is an employee's birthday
- */
+
 function isBirthdayToday(datumRodjenja: Date | string): boolean {
   const birthday = new Date(datumRodjenja);
   const today = new Date();
@@ -38,9 +36,7 @@ function isBirthdayToday(datumRodjenja: Date | string): boolean {
   );
 }
 
-/**
- * Send birthday email to an employee
- */
+
 async function sendBirthdayEmail(
   email: string,
   ime: string,
@@ -55,19 +51,20 @@ async function sendBirthdayEmail(
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-              <h1 style="color: #333; text-align: center;">🎉 Srećan rođendan! 🎉</h1>
+              <h1 style="color: #333; text-align: center;">Srećan rođendan!</h1>
               
               <p style="font-size: 16px; color: #555; text-align: center; margin-top: 20px;">
                 Dragi <strong>${ime} ${prezime}</strong>,
               </p>
               
               <p style="font-size: 16px; color: #555; text-align: center; line-height: 1.6;">
-                Želimo ti sve najbolje u tvojemu specijalnom danu! <br>
-                Neka ti je dan ispunjen sa radošću, osmehima i lepim uspomenama.
+                Želimo ti sve najbolje u tvom specijalnom danu! <br>
+                Neka ti je dan ispunjen radošću, osmesima i lepim uspomenama.
               </p>
               
               <p style="font-size: 16px; color: #555; text-align: center; margin-top: 30px;">
-                Svih nas u kompaniji želi ti sve najbolje! 🎊
+                Srdačan pozdrav,<br>
+                <strong>HR tim</strong> 🎊
               </p>
               
               <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 30px 0;">
@@ -82,23 +79,21 @@ async function sendBirthdayEmail(
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Poruka o rođendanu poslana ${ime} ${prezime} (${email})`);
+    console.log(`✅ Birthday message sent to ${ime} ${prezime} (${email})`);
     return true;
   } catch (error) {
     console.error(
-      `❌ Greška pri slanju poruke ${ime} ${prezime} (${email}):`,
+      `❌ Error while sending message ${ime} ${prezime} (${email}):`,
       error
     );
     return false;
   }
 }
 
-/**
- * Check all employees and send birthday emails to those who have birthday today
- */
+
 export async function checkAndSendBirthdayEmails(): Promise<void> {
   try {
-    console.log("🔍 Proveravamo rođendane zaposlenih...");
+    console.log("🔍 Checking birthdays...");
 
     const employees = await db
       .select({
@@ -118,13 +113,11 @@ export async function checkAndSendBirthdayEmails(): Promise<void> {
     );
 
     if (birthdayEmails.length === 0) {
-      console.log("✅ Nema zaposlenih sa rođendanom danas.");
+      console.log("ℹ️ No birthdays today.");
       return;
     }
 
-    console.log(
-      `🎂 Pronađeno ${birthdayEmails.length} zaposlenih sa rođendanom danas!`
-    );
+    console.log(`🎂 Birthdays today: ${birthdayEmails.length}`);
 
     for (const employee of birthdayEmails) {
       await sendBirthdayEmail(
@@ -134,8 +127,8 @@ export async function checkAndSendBirthdayEmails(): Promise<void> {
       );
     }
 
-    console.log("✅ Sve poruke o rođendanu su prosleđene!");
-  } catch (error) {
-    console.error("❌ Greška pri proveravanju rođendana:", error);
+    console.log(`✅ Sent birthday emails`);
+  } catch (error: any) {
+    console.error("❌ Failed to send emails:", error?.message ?? error);
   }
 }

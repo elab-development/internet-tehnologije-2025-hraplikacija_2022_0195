@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAndSendBirthdayEmails } from "@/lib/services/birthdayEmailService";
 
-/**
- * Test endpoint for birthday email service
- * POST /api/test/birthday-email
- * 
- * Use this to manually test the birthday email service.
- * Remove this endpoint in production if not needed.
- */
+
 export async function POST() {
   try {
     console.log("🧪 Manual test of birthday email service triggered");
@@ -29,9 +23,7 @@ export async function POST() {
   }
 }
 
-/**
- * GET endpoint to confirm the test route is available
- */
+
 export async function GET() {
   return NextResponse.json({
     message: "Birthday email service test endpoint",
