@@ -17,10 +17,10 @@ export default function LoginPage() {
     useEffect(() => {
   if (!loading && korisnik) {
     const uloga = korisnik.ulogaId;
-    if (uloga === 1) router.replace("/dashboard");
+    if (uloga === 1) router.replace("/admin/hr-admini");
     else if (uloga === 2) router.replace("/hr");
     else if (uloga === 3) router.replace("/zaposleni");
-    else router.replace("/dashboard");
+    else router.replace("/forbidden");
   }
 }, [loading, korisnik, router]);
 
