@@ -1,4 +1,4 @@
-// app/api/hr/zaposleni/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { zaposleni } from "@/db/schema/zaposleni";
@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 type ZaposleniUpdateData = {
   ime?: string;
   prezime?: string;
-  email?: string;             // dodajemo za update korisnika
+  email?: string;             
   pozicija?: string;
   plata?: string;             
   datumRodjenja?: string;     
@@ -30,13 +30,13 @@ export async function PATCH(
     const body: ZaposleniUpdateData = await req.json();
     console.log("Body received:", body);
 
-    // fetch existing zaposleni to obtain korisnikId
+  
     const rows = await db.select().from(zaposleni).where(eq(zaposleni.id, id));
     const existing = rows[0];
     if (!existing)
       return NextResponse.json({ error: "Zaposleni nije pronađen" }, { status: 404 });
 
-    // pravimo payload za zaposleni tabelu
+  
     const zaposleniData: Partial<ZaposleniUpdateData> = {
       ime: body.ime,
       prezime: body.prezime,
@@ -46,17 +46,17 @@ export async function PATCH(
       datumZaposlenja: body.datumZaposlenja,
     };
 
-    // filtriramo undefined polja
+   
     const zaposleniPayload = Object.fromEntries(
       Object.entries(zaposleniData).filter(([_, v]) => v !== undefined)
     );
 
-    // update zaposleni if there are fields to update
+ 
     if (Object.keys(zaposleniPayload).length > 0) {
       await db.update(zaposleni).set(zaposleniPayload).where(eq(zaposleni.id, id));
     }
 
-    // ako postoji email, update povezani korisnik
+    
     if (body.email !== undefined) {
       const korisnikId = existing.korisnikId;
       if (!korisnikId)

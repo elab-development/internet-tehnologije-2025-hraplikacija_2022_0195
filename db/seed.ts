@@ -84,10 +84,10 @@ async function main() {
         await db.insert(zaposleni).values({
             ime: "HR",
             prezime: "Admin",
-            datumRodjenja: "1990-01-01",      // dummy datum, slobodno promeni
+            datumRodjenja: "1990-01-01",     
             pozicija: "HR Administrator",
-            plata: "0.00",                   // ili neka realna vrednost
-            datumZaposlenja: "2024-01-01",    // ili new Date()
+            plata: "0.00",                  
+            datumZaposlenja: "2024-01-01",    
             statusZaposlenja: true,
             korisnikId: hrUserId,
         });

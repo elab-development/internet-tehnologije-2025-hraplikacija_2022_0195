@@ -1,4 +1,4 @@
-// app/api/zaposleni/odsustva/route.ts
+
 import { db } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -40,15 +40,12 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    // 1) Auth
     const token = await getAuthCookie();
     if (!token) {
       return NextResponse.json({ error: "Nije ulogovan" }, { status: 401 });
     }
 
     const payload = await verifyAuthToken(token);
-
-    // 2) Body
     let body: CreateZahtevBody | null = null;
     try {
       body = (await req.json()) as CreateZahtevBody;
@@ -77,7 +74,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Datum do ne može biti pre datuma od" }, { status: 400 });
     }
 
-    // 3) Find zaposlenog by korisnikId iz tokena
     const empRows = await db
       .select({
         zaposleniId: zaposleni.id,
@@ -102,12 +98,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Zaposleni nije aktivan" }, { status: 403 });
     }
 
-    // 4) Insert
     const inserted = await db
       .insert(zahtevZaOdsustvo)
       .values({
         zaposleniId: emp.zaposleniId,
-        statusId: 1, // Podnet (proveri da ti seed/statusi odgovaraju)
+        statusId: 1,
         datumOd,
         datumDo,
         razlog,

@@ -79,11 +79,11 @@ async function sendBirthdayEmail(
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Birthday message sent to ${ime} ${prezime} (${email})`);
+    console.log(`Birthday message sent to ${ime} ${prezime} (${email})`);
     return true;
   } catch (error) {
     console.error(
-      `❌ Error while sending message ${ime} ${prezime} (${email}):`,
+      `Error while sending message ${ime} ${prezime} (${email}):`,
       error
     );
     return false;
@@ -93,7 +93,7 @@ async function sendBirthdayEmail(
 
 export async function checkAndSendBirthdayEmails(): Promise<void> {
   try {
-    console.log("🔍 Checking birthdays...");
+    console.log("Checking birthdays...");
 
     const employees = await db
       .select({
@@ -113,11 +113,11 @@ export async function checkAndSendBirthdayEmails(): Promise<void> {
     );
 
     if (birthdayEmails.length === 0) {
-      console.log("ℹ️ No birthdays today.");
+      console.log("No birthdays today.");
       return;
     }
 
-    console.log(`🎂 Birthdays today: ${birthdayEmails.length}`);
+    console.log(`Birthdays today: ${birthdayEmails.length}`);
 
     for (const employee of birthdayEmails) {
       await sendBirthdayEmail(
@@ -127,8 +127,8 @@ export async function checkAndSendBirthdayEmails(): Promise<void> {
       );
     }
 
-    console.log(`✅ Sent birthday emails`);
+    console.log(`Sent birthday emails`);
   } catch (error: any) {
-    console.error("❌ Failed to send emails:", error?.message ?? error);
+    console.error("Failed to send emails:", error?.message ?? error);
   }
 }

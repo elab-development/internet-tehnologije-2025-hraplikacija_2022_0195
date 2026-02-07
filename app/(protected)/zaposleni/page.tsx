@@ -10,7 +10,7 @@ type MeEmployee = {
   prezime: string;
   email: string;
   pozicija: string;
-  plata: string; // numeric iz drizzle često dođe kao string
+  plata: string; 
   datumRodjenja: string;
   datumZaposlenja: string;
   statusZaposlenja: boolean;
@@ -96,7 +96,6 @@ export default function ZaposleniPage() {
     });
 
     if (!res.ok) {
-      // za sad samo alert, posle možeš toast
       alert(await res.text());
       return;
     }
@@ -159,8 +158,6 @@ export default function ZaposleniPage() {
             </tbody>
           </table>
         </div>
-
-        {/* Ako hoćeš, ovde možeš odvojeno da prikažeš podneti/završeni koristeći podneti/zavrseni */}
       </div>
 
       <Modal

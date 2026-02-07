@@ -7,7 +7,7 @@ import Button from "./Button";
 
 export type UserEmployeeData = {
   email: string;
-  lozinka?: string; // opcionalno za edit
+  lozinka?: string; 
   ulogaId: number;
   ime: string;
   prezime: string;
@@ -21,8 +21,8 @@ type ModalUserProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: UserEmployeeData) => void;
-  initialData?: UserEmployeeData; // za edit
-  isEdit?: boolean;               // flag za edit
+  initialData?: UserEmployeeData; 
+  isEdit?: boolean;               
 };
 
 export default function ModalUser({
@@ -43,7 +43,7 @@ export default function ModalUser({
   const [plata, setPlata] = useState(initialData?.plata || "");
   const [datumZaposlenja, setDatumZaposlenja] = useState("");
 
-  // Funkcija za formatiranje datuma u YYYY-MM-DD
+  
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -54,7 +54,7 @@ export default function ModalUser({
     return `${year}-${month}-${day}`;
   };
 
-  // Popuni formu kad se modal otvori
+  
   useEffect(() => {
     console.log("Initial Data:", initialData);
     if (isOpen) {
@@ -70,7 +70,7 @@ export default function ModalUser({
   }, [isOpen, initialData]);
 
 
-  // Validacija
+  
   const validate = () => {
     if (!email.includes("@")) {
       alert("Email nije validan");

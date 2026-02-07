@@ -204,7 +204,7 @@ export default function HrPage() {
                         loadEmployees();
                       }}
                     >
-                      {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Aktiviraj"}
+                      {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Reaktiviraj"}
                     </Button>
                     <Button onClick={() => openOdsustvoModal(employee)}>Odsustva</Button>
                   </td>

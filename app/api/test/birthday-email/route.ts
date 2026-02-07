@@ -4,7 +4,7 @@ import { checkAndSendBirthdayEmails } from "@/lib/services/birthdayEmailService"
 
 export async function POST() {
   try {
-    console.log("🧪 Manual test of birthday email service triggered");
+    console.log("Manual test of birthday email service triggered");
     await checkAndSendBirthdayEmails();
     
     return NextResponse.json({
@@ -12,7 +12,7 @@ export async function POST() {
       message: "Birthday email check completed. Check server logs for details.",
     });
   } catch (error) {
-    console.error("❌ Error during birthday email test:", error);
+    console.error("Error during birthday email test:", error);
     return NextResponse.json(
       {
         success: false,

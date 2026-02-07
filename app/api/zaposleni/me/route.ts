@@ -1,4 +1,4 @@
-// app/api/zaposleni/me/route.ts
+
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -37,8 +37,6 @@ export async function GET() {
 
     if (!me.statusNaloga) return NextResponse.json({ error: "Korisnik deaktiviran" }, { status: 403 });
 
-    // (opciono) ograniči samo uloge koje smeju: HR + zaposleni
-    // if (![2,3].includes(me.ulogaId)) return NextResponse.json({ error: "Zabranjeno" }, { status: 403 });
 
     return NextResponse.json({ me }, { status: 200 });
   } catch {

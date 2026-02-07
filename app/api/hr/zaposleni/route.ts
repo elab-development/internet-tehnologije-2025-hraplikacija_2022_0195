@@ -5,9 +5,6 @@ import { korisnik } from "@/db/schema/korisnik";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
-/* =========================
-   GET – lista zaposlenih
-   ========================= */
 export async function GET() {
   try {
     const result = await db
@@ -38,9 +35,6 @@ export async function GET() {
   }
 }
 
-/* =========================
-   POST – dodavanje zaposlenog
-   ========================= */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -70,6 +64,23 @@ export async function POST(req: Request) {
         { error: "Nedostaju podaci" },
         { status: 400 }
       );
+    }
+
+    if (!email.includes("@")) {
+      return NextResponse.json(
+        { error: "Neispravan format email adrese" },
+        { status: 400 }
+      );
+    }
+    
+    const postoji = await db
+      .select({ id: korisnik.id })
+      .from(korisnik)
+      .where(eq(korisnik.email, email))
+      .limit(1);
+
+    if (postoji.length) {
+      return NextResponse.json({ error: "Email je već u upotrebi" }, { status: 409 });
     }
 
     const lozinkaHash = await bcrypt.hash(lozinka, 12);

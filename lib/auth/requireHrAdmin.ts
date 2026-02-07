@@ -31,7 +31,7 @@ export async function requireHrAdmin() {
     throw new Error("DEACTIVATED");
   }
 
-  // PRETPOSTAVKA: HR_ADMIN = 2 (ako nije, reci)
+
   if (k.ulogaId !== 2) {
     throw new Error("FORBIDDEN");
   }
