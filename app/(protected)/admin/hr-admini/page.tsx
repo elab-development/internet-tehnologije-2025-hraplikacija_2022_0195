@@ -26,7 +26,7 @@ export default function AdminHrAdminiPage() {
   const [loading, setLoading] = useState(true);
  
   const [showCreate, setShowCreate] = useState(false);
-  const [myUserId, setMyUserId] = useState<number | null>(null);
+  
  
   async function loadHrAdmini() {
     setLoading(true);
@@ -37,11 +37,7 @@ export default function AdminHrAdminiPage() {
  
   useEffect(() => {
     (async () => {
-      const meRes = await fetch("/api/me", { cache: "no-store" });
-      if (meRes.ok) {
-        const meData = await meRes.json();
-        setMyUserId(meData.korisnik?.id ?? null);
-      }
+      
       loadHrAdmini();
     })();
   }, []);
@@ -90,8 +86,7 @@ export default function AdminHrAdminiPage() {
  
           <tbody className="bg-zinc-900 divide-y divide-zinc-700">
             {hrAdmini
-              // ako želiš, sakrij sebe (kao u HR panelu)
-              .filter((a) => myUserId == null || a.korisnik.id !== myUserId)
+              
               .map((a) => (
                 <tr key={a.id} className="hover:bg-zinc-800 transition">
                   <td className="px-4 py-3">{a.id}</td>

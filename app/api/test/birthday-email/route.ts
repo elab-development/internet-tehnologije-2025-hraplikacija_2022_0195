@@ -9,7 +9,7 @@ export async function POST() {
     
     return NextResponse.json({
       success: true,
-      message: "Birthday email check completed. Check server logs for details.",
+      message: "Birthday email check completed",
     });
   } catch (error) {
     console.error("Error during birthday email test:", error);

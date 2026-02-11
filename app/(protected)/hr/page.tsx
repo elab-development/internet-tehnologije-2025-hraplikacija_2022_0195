@@ -41,14 +41,12 @@ export default function HrPage() {
 
   useEffect(() => {
     (async () => {
-      // ko sam ja
       const meRes = await fetch("/api/me", { cache: "no-store" });
       if (meRes.ok) {
         const meData = await meRes.json();
         setMyUserId(meData.korisnik?.id ?? null);
       }
 
-      // lista zaposlenih
       loadEmployees();
     })();
   }, []);
@@ -80,10 +78,6 @@ export default function HrPage() {
 
       const data = await res.json();
       console.log("odsustva response", data);
-
-      // Handle possible response shapes from backend:
-      // 1) { podneti: [...], zavrseni: [...] }
-      // 2) flat array of requests: [...]
       if (Array.isArray(data)) {
         setPodneti(data.filter((z: ZahtevOdsustvo) => z.statusId === 1));
         setZavrseni(data.filter((z: ZahtevOdsustvo) => z.statusId !== 1));

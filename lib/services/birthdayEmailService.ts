@@ -54,7 +54,7 @@ async function sendBirthdayEmail(
               <h1 style="color: #333; text-align: center;">Srećan rođendan!</h1>
               
               <p style="font-size: 16px; color: #555; text-align: center; margin-top: 20px;">
-                Dragi <strong>${ime} ${prezime}</strong>,
+                Dragi/a <strong>${ime} ${prezime}</strong>,
               </p>
               
               <p style="font-size: 16px; color: #555; text-align: center; line-height: 1.6;">

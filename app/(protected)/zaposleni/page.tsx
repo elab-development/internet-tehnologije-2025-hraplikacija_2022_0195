@@ -37,9 +37,6 @@ export default function ZaposleniPage() {
   const [datumDo, setDatumDo] = useState("");
   const [razlog, setRazlog] = useState("");
 
-  const podneti = useMemo(() => zahtevi.filter(z => z.statusId === 1), [zahtevi]);
-  const zavrseni = useMemo(() => zahtevi.filter(z => z.statusId !== 1), [zahtevi]);
-
   const formatDate = (d: string) => new Date(d).toLocaleDateString();
 
   const renderStatus = (statusId: number) => {
