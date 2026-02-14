@@ -21,5 +21,18 @@ services:
     depends_on:
       - db
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iteh_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
 volumes:
   db_data:
