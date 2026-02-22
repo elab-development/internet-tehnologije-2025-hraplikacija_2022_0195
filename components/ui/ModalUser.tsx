@@ -131,7 +131,7 @@ export default function ModalUser({
       onClose={onClose}
       title={isEdit ? "Azuriraj zaposlenog" : "Dodaj zaposlenog"}
       saveLabel={isEdit ? "Sačuvaj" : "Dodaj"}
-      onSave={handleSave} // samo jedan set dugmadi
+      onSave={handleSave} 
     >
       <div className="space-y-4">
         <InputField label="Email" value={email} onChange={setEmail} />
