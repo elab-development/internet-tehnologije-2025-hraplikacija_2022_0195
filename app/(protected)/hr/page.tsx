@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import ModalUser, { UserEmployeeData } from "@/components/ui/ModalUser";
 import ModalOdsustvo, { ZahtevOdsustvo } from "@/components/ui/ModalOdsustvo";
+import ModalOceneRada, { OcenaRadaRow } from "@/components/ui/ModalOceneRada";
+import { OcenaRadaPayload } from "@/components/ui/ModalOcenaRada";
 
 type Employee = {
   id: number;
@@ -26,11 +28,16 @@ export default function HrPage() {
   const [loading, setLoading] = useState(true);
   const [showModalUser, setShowModalUser] = useState(false);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
+
   const [showModalOdsustvo, setShowModalOdsustvo] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [podneti, setPodneti] = useState<ZahtevOdsustvo[]>([]);
   const [zavrseni, setZavrseni] = useState<ZahtevOdsustvo[]>([]);
   const [myUserId, setMyUserId] = useState<number | null>(null);
+
+  const [showModalOcene, setShowModalOcene] = useState(false);
+  const [selectedEmployeeForOcene, setSelectedEmployeeForOcene] = useState<Employee | null>(null);
+  const [ocene, setOcene] = useState<OcenaRadaRow[]>([]);
 
   async function loadEmployees() {
     setLoading(true);
@@ -46,7 +53,6 @@ export default function HrPage() {
         const meData = await meRes.json();
         setMyUserId(meData.korisnik?.id ?? null);
       }
-
       loadEmployees();
     })();
   }, []);
@@ -63,13 +69,13 @@ export default function HrPage() {
 
   const openOdsustvoModal = async (employee: Employee) => {
     setSelectedEmployee(employee);
-    console.log("openOdsustvoModal: employee.id=", employee?.id);
     try {
-      const url = `/api/hr/odsustva/${employee.id}`;
-      console.log("Fetching odsustva URL:", url);
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(`/api/hr/odsustva/${employee.id}`, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+
       if (!res.ok) {
-        console.error("Failed to load odsustva", res.status, await res.text());
         setPodneti([]);
         setZavrseni([]);
         setShowModalOdsustvo(true);
@@ -77,7 +83,6 @@ export default function HrPage() {
       }
 
       const data = await res.json();
-      console.log("odsustva response", data);
       if (Array.isArray(data)) {
         setPodneti(data.filter((z: ZahtevOdsustvo) => z.statusId === 1));
         setZavrseni(data.filter((z: ZahtevOdsustvo) => z.statusId !== 1));
@@ -88,12 +93,24 @@ export default function HrPage() {
         setPodneti([]);
         setZavrseni([]);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setPodneti([]);
       setZavrseni([]);
     } finally {
       setShowModalOdsustvo(true);
+    }
+  };
+
+  const openOceneModal = async (employee: Employee) => {
+    setSelectedEmployeeForOcene(employee);
+    try {
+      const res = await fetch(`/api/hr/ocene-rada/${employee.id}`, { cache: "no-store" });
+      if (res.ok) setOcene(await res.json());
+      else setOcene([]);
+    } catch {
+      setOcene([]);
+    } finally {
+      setShowModalOcene(true);
     }
   };
 
@@ -146,6 +163,30 @@ export default function HrPage() {
     if (selectedEmployee) openOdsustvoModal(selectedEmployee);
   };
 
+  const addOcenaRada = async (payload: OcenaRadaPayload) => {
+    if (!selectedEmployeeForOcene) return;
+
+    const res = await fetch(`/api/hr/ocene-rada/${selectedEmployeeForOcene.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      let msg = "Greška pri čuvanju.";
+      try {
+        const data = await res.json();
+        if (data?.error) msg = data.error;
+      } catch {}
+      throw new Error(msg);
+    }
+
+    const listRes = await fetch(`/api/hr/ocene-rada/${selectedEmployeeForOcene.id}`, {
+      cache: "no-store",
+    });
+    if (listRes.ok) setOcene(await listRes.json());
+  };
+
   if (loading) return <p className="text-center mt-10 text-gray-400">Učitavanje...</p>;
 
   return (
@@ -156,7 +197,6 @@ export default function HrPage() {
         <Button onClick={openAddModal} className="w-48">
           Dodaj zaposlenog
         </Button>
-        
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-700">
@@ -184,8 +224,11 @@ export default function HrPage() {
                   <td className="px-4 py-3">{Number(employee.plata).toFixed(2)} €</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${employee.korisnik.statusNaloga ? "bg-green-600 text-white" : "bg-red-600 text-white"
-                        }`}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        employee.korisnik.statusNaloga
+                          ? "bg-green-600 text-white"
+                          : "bg-red-600 text-white"
+                      }`}
                     >
                       {employee.korisnik.statusNaloga ? "Aktivan" : "Neaktivan"}
                     </span>
@@ -201,6 +244,7 @@ export default function HrPage() {
                       {employee.korisnik.statusNaloga ? "Deaktiviraj" : "Reaktiviraj"}
                     </Button>
                     <Button onClick={() => openOdsustvoModal(employee)}>Odsustva</Button>
+                    <Button onClick={() => openOceneModal(employee)}>Ocene</Button>
                   </td>
                 </tr>
               ))}
@@ -215,15 +259,15 @@ export default function HrPage() {
         initialData={
           editEmployee
             ? {
-              email: editEmployee.korisnik.email,
-              ime: editEmployee.ime,
-              prezime: editEmployee.prezime,
-              datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
-              pozicija: editEmployee.pozicija,
-              plata: editEmployee.plata.toString(),
-              datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
-              ulogaId: 3,
-            }
+                email: editEmployee.korisnik.email,
+                ime: editEmployee.ime,
+                prezime: editEmployee.prezime,
+                datumRodjenja: formatDateForInput(editEmployee.datumRodjenja),
+                pozicija: editEmployee.pozicija,
+                plata: editEmployee.plata.toString(),
+                datumZaposlenja: formatDateForInput(editEmployee.datumZaposlenja),
+                ulogaId: 3,
+              }
             : undefined
         }
         isEdit={!!editEmployee}
@@ -244,6 +288,22 @@ export default function HrPage() {
           zavrseni={zavrseni}
           onApprove={handleApprove}
           onDeny={handleDeny}
+        />
+      )}
+
+      {selectedEmployeeForOcene && (
+        <ModalOceneRada
+          isOpen={showModalOcene}
+          onClose={() => setShowModalOcene(false)}
+          employee={{
+            id: selectedEmployeeForOcene.id,
+            ime: selectedEmployeeForOcene.ime,
+            prezime: selectedEmployeeForOcene.prezime,
+            email: selectedEmployeeForOcene.korisnik.email,
+            pozicija: selectedEmployeeForOcene.pozicija,
+          }}
+          ocene={ocene}
+          onAddOcena={addOcenaRada}
         />
       )}
     </div>
