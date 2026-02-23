@@ -22,6 +22,13 @@
       "when": 1769953262906,
       "tag": "0002_absent_professor_monster",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1771834208727,
+      "tag": "0003_milky_quasar",
+      "breakpoints": true
     }
   ]
 }

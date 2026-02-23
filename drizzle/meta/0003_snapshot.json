@@ -1,0 +1,420 @@
+{
+  "id": "c495343c-b899-46a1-80af-c3b392619e21",
+  "prevId": "b9007710-12cd-4cc3-b85b-f049c83a9d8a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.uloga_korisnika": {
+      "name": "uloga_korisnika",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "naziv": {
+          "name": "naziv",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "uloga_korisnika_naziv_unique": {
+          "name": "uloga_korisnika_naziv_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "naziv"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.korisnik": {
+      "name": "korisnik",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lozinka_hash": {
+          "name": "lozinka_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_naloga": {
+          "name": "status_naloga",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "uloga_id": {
+          "name": "uloga_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "korisnik_uloga_id_uloga_korisnika_id_fk": {
+          "name": "korisnik_uloga_id_uloga_korisnika_id_fk",
+          "tableFrom": "korisnik",
+          "tableTo": "uloga_korisnika",
+          "columnsFrom": [
+            "uloga_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "korisnik_email_unique": {
+          "name": "korisnik_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.zaposleni": {
+      "name": "zaposleni",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ime": {
+          "name": "ime",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prezime": {
+          "name": "prezime",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_rodjenja": {
+          "name": "datum_rodjenja",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pozicija": {
+          "name": "pozicija",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plata": {
+          "name": "plata",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_zaposlenja": {
+          "name": "datum_zaposlenja",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_zaposlenja": {
+          "name": "status_zaposlenja",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "korisnik_id": {
+          "name": "korisnik_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "zaposleni_korisnik_id_korisnik_id_fk": {
+          "name": "zaposleni_korisnik_id_korisnik_id_fk",
+          "tableFrom": "zaposleni",
+          "tableTo": "korisnik",
+          "columnsFrom": [
+            "korisnik_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "zaposleni_korisnik_id_unique": {
+          "name": "zaposleni_korisnik_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "korisnik_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.status_zahteva": {
+      "name": "status_zahteva",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "naziv": {
+          "name": "naziv",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "status_zahteva_naziv_unique": {
+          "name": "status_zahteva_naziv_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "naziv"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.zahtev_za_odsustvo": {
+      "name": "zahtev_za_odsustvo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "zaposleni_id": {
+          "name": "zaposleni_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_id": {
+          "name": "status_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_od": {
+          "name": "datum_od",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_do": {
+          "name": "datum_do",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "razlog": {
+          "name": "razlog",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_kreiranja": {
+          "name": "datum_kreiranja",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "datum_azuriranja": {
+          "name": "datum_azuriranja",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "zahtev_za_odsustvo_zaposleni_id_zaposleni_id_fk": {
+          "name": "zahtev_za_odsustvo_zaposleni_id_zaposleni_id_fk",
+          "tableFrom": "zahtev_za_odsustvo",
+          "tableTo": "zaposleni",
+          "columnsFrom": [
+            "zaposleni_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "zahtev_za_odsustvo_status_id_status_zahteva_id_fk": {
+          "name": "zahtev_za_odsustvo_status_id_status_zahteva_id_fk",
+          "tableFrom": "zahtev_za_odsustvo",
+          "tableTo": "status_zahteva",
+          "columnsFrom": [
+            "status_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ocena_rada": {
+      "name": "ocena_rada",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "autor_id": {
+          "name": "autor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ocenjeni_id": {
+          "name": "ocenjeni_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_od": {
+          "name": "datum_od",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datum_do": {
+          "name": "datum_do",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ocena": {
+          "name": "ocena",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "komentar": {
+          "name": "komentar",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datum_kreiranja": {
+          "name": "datum_kreiranja",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ocena_rada_autor_id_zaposleni_id_fk": {
+          "name": "ocena_rada_autor_id_zaposleni_id_fk",
+          "tableFrom": "ocena_rada",
+          "tableTo": "zaposleni",
+          "columnsFrom": [
+            "autor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "ocena_rada_ocenjeni_id_zaposleni_id_fk": {
+          "name": "ocena_rada_ocenjeni_id_zaposleni_id_fk",
+          "tableFrom": "ocena_rada",
+          "tableTo": "zaposleni",
+          "columnsFrom": [
+            "ocenjeni_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
