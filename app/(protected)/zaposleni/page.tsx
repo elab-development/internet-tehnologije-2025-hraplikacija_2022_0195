@@ -10,7 +10,7 @@ type MeEmployee = {
   prezime: string;
   email: string;
   pozicija: string;
-  plata: string; 
+  plata: string;
   datumRodjenja: string;
   datumZaposlenja: string;
   statusZaposlenja: boolean;
@@ -27,11 +27,25 @@ type ZahtevOdsustvo = {
   statusId: number;
 };
 
+type OcenaRada = {
+  id: number;
+  autorId: number;
+  ocenjeniId: number;
+  datumOd: string;
+  datumDo: string;
+  ocena: number;
+  komentar?: string | null;
+  datumKreiranja: string;
+  autorIme: string;
+  autorPrezime: string;
+  autorEmail: string;
+};
+
 export default function ZaposleniPage() {
   const [me, setMe] = useState<MeEmployee | null>(null);
   const [zahtevi, setZahtevi] = useState<ZahtevOdsustvo[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [ocene, setOcene] = useState<OcenaRada[]>([]);
   const [open, setOpen] = useState(false);
   const [datumOd, setDatumOd] = useState("");
   const [datumDo, setDatumDo] = useState("");
@@ -70,6 +84,9 @@ export default function ZaposleniPage() {
 
     const zRes = await fetch("/api/zaposleni/odsustva", { cache: "no-store" });
     if (zRes.ok) setZahtevi(await zRes.json());
+
+    const oRes = await fetch("/api/zaposleni/ocene-rada", { cache: "no-store" });
+    if (oRes.ok) setOcene(await oRes.json());
 
     setLoading(false);
   }
@@ -150,6 +167,56 @@ export default function ZaposleniPage() {
               {zahtevi.length === 0 && (
                 <tr>
                   <td className="px-3 py-4 text-zinc-400" colSpan={6}>Nema zahteva.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-white mb-3">Moje ocene rada</h2>
+
+        <div className="overflow-x-auto rounded-lg border border-zinc-700">
+          <table className="min-w-full divide-y divide-zinc-700 text-sm text-left">
+            <thead className="bg-zinc-800">
+              <tr>
+                <th className="px-3 py-2">Datum od</th>
+                <th className="px-3 py-2">Datum do</th>
+                <th className="px-3 py-2">Ocena</th>
+                <th className="px-3 py-2">Komentar</th>
+                <th className="px-3 py-2">Autor</th>
+                <th className="px-3 py-2">Kreirano</th>
+              </tr>
+            </thead>
+
+            <tbody className="bg-zinc-900 divide-y divide-zinc-700">
+              {ocene.map((o) => (
+                <tr key={o.id} className="hover:bg-zinc-800 transition">
+                  <td className="px-3 py-2">{formatDate(o.datumOd)}</td>
+                  <td className="px-3 py-2">{formatDate(o.datumDo)}</td>
+                  <td className="px-3 py-2 font-semibold">{o.ocena}</td>
+
+                  <td className="px-3 py-2 max-w-xs truncate" title={o.komentar ?? ""}>
+                    {o.komentar ? o.komentar : "-"}
+                  </td>
+
+                  <td className="px-3 py-2">
+                    <div className="leading-tight">
+                      <div className="text-white">{o.autorIme} {o.autorPrezime}</div>
+                      <div className="text-xs text-zinc-400">{o.autorEmail}</div>
+                    </div>
+                  </td>
+
+                  <td className="px-3 py-2">{formatDate(o.datumKreiranja)}</td>
+                </tr>
+              ))}
+
+              {ocene.length === 0 && (
+                <tr>
+                  <td className="px-3 py-4 text-zinc-400" colSpan={6}>
+                    Nema ocena.
+                  </td>
                 </tr>
               )}
             </tbody>
