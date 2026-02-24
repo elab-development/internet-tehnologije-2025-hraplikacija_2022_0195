@@ -1,4 +1,3 @@
-// app/api/hr/ocene-rada/[ocenjeniId]/route.ts
 import { db } from "@/db";
 import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -196,13 +195,23 @@ export async function POST(
     }
 
     const ocenjeniExists = await db
-      .select({ id: zaposleni.id })
+      .select({
+        id: zaposleni.id,
+        statusZaposlenja: zaposleni.statusZaposlenja,
+      })
       .from(zaposleni)
       .where(eq(zaposleni.id, ocenjeniIdNum))
       .limit(1);
 
     if (ocenjeniExists.length === 0) {
       return NextResponse.json({ error: "Ocenjeni zaposleni ne postoji" }, { status: 404 });
+    }
+
+    if (ocenjeniExists[0].statusZaposlenja !== true) {
+      return NextResponse.json(
+        { error: "Ocenjeni zaposleni nije aktivan" },
+        { status: 400 }
+      );
     }
 
     const inserted = await db
